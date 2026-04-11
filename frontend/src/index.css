@@ -110,3 +110,9 @@ code {
   background: var(--code-bg);
 } */
 @import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", sans-serif;
+  --color-xanhluc: #4FD1C5;
+  --color-xamden: #F8F9FA;
+}
