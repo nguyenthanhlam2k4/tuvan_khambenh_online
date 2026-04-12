@@ -1,38 +1,64 @@
 import React from "react";
-import { FaUserDoctor } from "react-icons/fa6";
-import { IoHome } from "react-icons/io5";
-import { FaUser } from "react-icons/fa";
+import { FaUser } from "react-icons/fa6";
 
 const menuItems = [
-  { icon: <FaUser />, lable: "Users" },
-  { icon: <FaUser />, lable: "Bác sĩ" },
-  { icon: <FaUser />, lable: "Bệnh nhân" },
+  { icon: FaUser, label: "Users" },
+  { icon: FaUser, label: "Bác sĩ" },
+  { icon: FaUser, label: "Bệnh nhân" },
 ];
 
-const Sidebar = ({active, setActive}) => {
+const Sidebar = ({ active, setActive }) => {
   return (
-    <div>
-      <div className="flex items-center gap-2 text-3xl font-bold mb-8">
-        <FaUserDoctor />
-        <span>Doctor</span>
+    <div className="flex flex-col h-screen w-60 bg-xamden px-4 py-6">
+      {/* Header */}
+      <div className="w-full text-center mb-4">
+        <span className="font-bold tracking-widest text-sm uppercase">
+          Admin Dashboard
+        </span>
       </div>
-      <div className="">
-        {menuItems.map((item) => (
-          <div 
-          key={item.lable}
-          onClick={() => setActive(item.lable)}
-          className={`flex items-center gap-3 px-3 py-3 rounded-xl cursor-pointer transition-colors duration-200
-          ${active === item.lable
-            ? "bg-blue-600 text-white"
-            : "text-gray-600 hover:bg-blue-50 hover:text-blue-600"
-          }`}
-          > 
-          <span className="text-lg">{item.icon}</span>
-          <p className="text-sm font-medium">{item.lable}</p>
-          </div>
-        ))
 
-        }
+      {/* Divider */}
+      <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-gray-300 to-transparent mb-4" />
+
+      {/* Menu */}
+      <div className="flex flex-col gap-1">
+        {menuItems.map(({ icon: Icon, label }) => {
+          const isActive = active === label;
+
+          return (
+            <div
+              key={label}
+              onClick={() => setActive(label)}
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-2xl cursor-pointer transition-all duration-200
+                ${isActive
+                  ? "bg-white shadow-md"
+                  : "hover:bg-white/80"}`}
+            >
+              {/* Icon */}
+              <div
+                className={`p-2 rounded-xl transition-all duration-200
+                  ${isActive
+                    ? "bg-xanhluc text-white shadow-sm"
+                    : "bg-white shadow-sm text-xanhluc"}`}
+              >
+                <Icon className="text-sm" />
+              </div>
+
+              {/* Text */}
+              <p
+                className={`text-xs font-semibold tracking-wide transition-all duration-200
+                  ${isActive ? "text-gray-800" : "text-gray-400"}`}
+              >
+                {label}
+              </p>
+
+              {/* Active indicator */}
+              {isActive && (
+                <div className="ml-auto w-1.5 h-1.5 rounded-full bg-xanhluc" />
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
