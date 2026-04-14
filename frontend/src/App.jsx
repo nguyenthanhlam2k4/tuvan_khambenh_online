@@ -2,13 +2,18 @@ import { Routes, Route, Navigate } from "react-router";
 import { AuthProvider }            from "./context/AuthContext";
 import { CanDangNhap, CanVaiTro, DaCoTaiKhoan } from "./components/RouteGuard";
 
-// Pages — auth
+// Public
+import TrangChu     from "./pages/TrangChu.jsx";
+import TimBacSi     from "./components/TimBacSi.jsx";
+import ChiTietBacSi from "./components/ChiTietBacSi.jsx";
+
+// Auth
 import DangNhap     from "./pages/DangNhap";
 import DangKy       from "./pages/DangKy";
 import KhongCoQuyen from "./pages/KhongCoQuyen";
 
-// Pages — dashboard từng vai trò
-import AdminDashboard    from "./pages/admin/Dashboard";
+// Dashboards
+import AdminDashboard    from "./pages/admin/AdminDashboard.jsx";
 import BacSiDashboard    from "./pages/bacsi/Dashboard";
 import BenhNhanDashboard from "./pages/benhnhan/Dashboard";
 
@@ -17,8 +22,10 @@ export default function App() {
         <AuthProvider>
             <Routes>
 
-                {/* Trang chủ → đăng nhập */}
-                <Route path="/" element={<Navigate to="/dang-nhap" replace />} />
+                {/* Public */}
+                <Route path="/"               element={<TrangChu />} />
+                <Route path="/tim-bac-si"     element={<TimBacSi />} />
+                <Route path="/tim-bac-si/:id" element={<ChiTietBacSi />} />
 
                 {/* Auth */}
                 <Route path="/dang-nhap" element={<DaCoTaiKhoan><DangNhap /></DaCoTaiKhoan>} />
@@ -40,7 +47,6 @@ export default function App() {
                     <CanDangNhap><CanVaiTro vaiTro={["benhnhan"]}><BenhNhanDashboard /></CanVaiTro></CanDangNhap>
                 } />
 
-                {/* 404 */}
                 <Route path="*" element={<Navigate to="/" replace />} />
 
             </Routes>

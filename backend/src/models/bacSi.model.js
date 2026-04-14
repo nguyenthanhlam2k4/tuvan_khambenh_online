@@ -12,15 +12,20 @@ const lichSchema = new mongoose.Schema({
 })
 
 const bacSiSchema = new mongoose.Schema({
-    nguoidungId: {
+    nguoiDungId: {
         type: mongoose.Schema.Types.ObjectId, //id tự sinh
         ref: "NguoiDung", //tham chiếu đến bảng NguoiDung
         required: true
     },
     chuyenKhoa: String,
   soNamKinhNghiem: Number,
+  benhVien: String,
   moTa: String,
   hinhAnh: String,
+  daXacMinh: {
+        type: Boolean,
+        default: false
+    },
 
   lichLamViec: [lichSchema]
 });
