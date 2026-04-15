@@ -153,7 +153,7 @@ const s = {
     searchInput:  { height: 32, border: "0.5px solid #E5E7EB", borderRadius: 8, padding: "0 10px", fontSize: 12, color: "#111", width: 200 },
     filterGroup:  { display: "flex", gap: 4 },
     filterBtn:    { height: 30, padding: "0 12px", border: "0.5px solid #E5E7EB", borderRadius: 20, fontSize: 11, background: "#fff", color: "#6B7280", cursor: "pointer" },
-    filterActive: { background: "#111", color: "#fff", borderColor: "#111" },
+    filterActive: { background: "#111", color: "#fff", border: "0.5px solid #1D9E75" },
     empty:        { background: "#fff", border: "0.5px solid #E5E7EB", borderRadius: 10, padding: "40px 20px", textAlign: "center", fontSize: 13, color: "#9CA3AF" },
     list:         { display: "flex", flexDirection: "column", gap: 6 },
     row:          { display: "flex", alignItems: "center", gap: 14, background: "#fff", border: "0.5px solid #E5E7EB", borderRadius: 10, padding: "12px 16px" },

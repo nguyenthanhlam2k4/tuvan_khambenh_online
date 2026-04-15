@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router";
-import { layChiTietBacSi, layLichTrong } from "../api/bacSiApi.js";
-import { useAuth } from "../context/AuthContext.jsx";
+import { layChiTietBacSi, layLichTrong } from "../../api/bacSiApi.js";
+import { useAuth } from "../../context/AuthContext.jsx";
 
 const THU = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"];
 
@@ -47,12 +47,14 @@ export default function ChiTietBacSi() {
             setLich(rLich.data.data);
         }).catch(() => navigate("/tim-bac-si"))
           .finally(() => setLoad(false));
+          console.log("LICH FRONTEND:", lich);
     }, [id]);
 
     const ngayCoLich = lich.map(n => n.ngay);
     const lichNgayChon = lich.find(n => n.ngay === ngayChon);
 
     const onDatLich = () => {
+        console.log("CLICK BUTTON");
         if (!daDangNhap) return navigate("/dang-nhap");
         if (!ngayChon || !gioChon) return;
         // Phase 3 — navigate đến form đặt lịch
@@ -64,7 +66,8 @@ export default function ChiTietBacSi() {
 
     const ten   = bacSi.nguoiDungId?.ten || "Bác sĩ";
     const soSao = bacSi.diemDanhGia > 0 ? bacSi.diemDanhGia.toFixed(1) : null;
-
+    console.log("ngayChon:", ngayChon);
+console.log("lichNgayChon:", lichNgayChon);
     return (
         <div style={s.page}>
             {/* Header */}
@@ -269,14 +272,14 @@ const s = {
     ngayLabel:     { fontSize: 12, fontWeight: 500, color: "#374151", marginBottom: 8 },
     ngayGrid:      { display: "grid", gridTemplateColumns: "repeat(7,1fr)", gap: 4, marginBottom: 16 },
     ngayItem:      { textAlign: "center", padding: "7px 2px", borderRadius: 8, border: "0.5px solid #E5E7EB", cursor: "pointer", background: "#fff", position: "relative" },
-    ngayItemActive:{ background: "#1D9E75", borderColor: "#1D9E75" },
+    ngayItemActive:{ background: "#1D9E75", border: "0.5px solid #1D9E75" },
     ngayItemDisabled:{ textAlign: "center", padding: "7px 2px", borderRadius: 8, background: "#F8F9FA", opacity: 0.4 },
     ngayThu:       { fontSize: 10, color: "#9CA3AF" },
     ngayNum:       { fontSize: 12, fontWeight: 600, color: "#111", marginTop: 2 },
     ngayDot:       { width: 4, height: 4, borderRadius: "50%", background: "#1D9E75", margin: "3px auto 0" },
     gioGrid:       { display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 16 },
     gioBtn:        { height: 32, padding: "0 12px", border: "0.5px solid #E5E7EB", borderRadius: 8, background: "#fff", fontSize: 12, fontWeight: 500, cursor: "pointer", color: "#374151" },
-    gioBtnActive:  { background: "#1D9E75", borderColor: "#1D9E75", color: "#fff" },
+    gioBtnActive:  { background: "#1D9E75", border: "0.5px solid #1D9E75" , color: "#fff" },
     summary:       { background: "#F8FAFC", borderRadius: 10, padding: "12px 14px", marginBottom: 14 },
     summaryRow:    { display: "flex", justifyContent: "space-between", padding: "4px 0" },
     summaryLabel:  { fontSize: 12, color: "#9CA3AF" },

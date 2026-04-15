@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Sidebar from "../../components/admin/Sidebar";
-import NguoiDung from "./NguoiDung";
+import QuanLyNguoiDung from "./QuanLyNguoiDung";
 import QuanLyBacSi from "./QuanLyBacSi";
 import TongQuan from "./TongQuan";
 
@@ -15,7 +15,7 @@ function Placeholder({ title }) {
 
 const TRANG = {
   "tong-quan": TongQuan,
-  "nguoi-dung": NguoiDung,
+  "nguoi-dung": QuanLyNguoiDung,
   "bac-si": QuanLyBacSi,
   "lich-kham": () => <Placeholder title="Lịch khám" />,
   chat: () => <Placeholder title="Chat & tư vấn" />,

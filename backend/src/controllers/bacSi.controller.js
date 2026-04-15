@@ -97,6 +97,7 @@ console.log("USER:", req.nguoiDung);
 // body: { lichTuan: [{ ngay: "2026-04-14", khungGios: ["08:00","09:30"] }] }
 export const dangKyLich = async (req, res) => {
   try {
+    console.log("BODY:", req.body);
     const { lichTuan } = req.body;
 
     if (!Array.isArray(lichTuan) || lichTuan.length === 0) {
@@ -112,10 +113,10 @@ export const dangKyLich = async (req, res) => {
           400,
         );
       }
-      if (!Array.isArray(item.khungGios) || item.khungGios.length === 0) {
+      if (!Array.isArray(item.khungGio) || item.khungGio.length === 0) {
         return err(res, `Ngày ${item.ngay} cần có ít nhất 1 khung giờ`, 400);
       }
-      for (const gio of item.khungGios) {
+      for (const gio of item.khungGio) {
         if (!/^\d{2}:\d{2}$/.test(gio)) {
           return err(res, `Giờ "${gio}" không đúng định dạng HH:MM`, 400);
         }
@@ -125,6 +126,7 @@ export const dangKyLich = async (req, res) => {
     const data = await bacSiService.dangKyLich(req.nguoiDung.id, lichTuan);
     ok(res, data);
   } catch (e) {
+    console.error("LOI BACKEND:", err);
     err(res, e.message, 400);
   }
 };

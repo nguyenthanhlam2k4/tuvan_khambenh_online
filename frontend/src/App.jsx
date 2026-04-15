@@ -3,19 +3,20 @@ import { AuthProvider }            from "./context/AuthContext";
 import { CanDangNhap, CanVaiTro, DaCoTaiKhoan } from "./components/RouteGuard";
 
 // Public
-import TrangChu     from "./pages/TrangChu.jsx";
-import TimBacSi     from "./components/TimBacSi.jsx";
-import ChiTietBacSi from "./components/ChiTietBacSi.jsx";
+import TrangChu     from "./pages/public/TrangChu.jsx";
+import TimBacSi     from "./pages/public/TimBacSi.jsx";
+import ChiTietBacSi from "./pages/public/ChiTietBacSi.jsx";
+import DatLich      from "./pages/public/Datlich.jsx";
 
 // Auth
-import DangNhap     from "./pages/DangNhap";
-import DangKy       from "./pages/DangKy";
-import KhongCoQuyen from "./pages/KhongCoQuyen";
+import DangNhap     from "./pages/auth/DangNhap.jsx";
+import DangKy       from "./pages/auth/DangKy.jsx";
+import KhongCoQuyen from "./pages/auth/KhongCoQuyen.jsx";
 
 // Dashboards
 import AdminDashboard    from "./pages/admin/AdminDashboard.jsx";
-import BacSiDashboard    from "./pages/bacsi/Dashboard";
-import BenhNhanDashboard from "./pages/benhnhan/Dashboard";
+import BacSiDashboard    from "./pages/bacsi/BacSiDashboard.jsx";
+import BenhNhanDashboard from "./pages/benhnhan/BenhNhanDashboard.jsx";
 
 export default function App() {
     return (
@@ -26,6 +27,15 @@ export default function App() {
                 <Route path="/"               element={<TrangChu />} />
                 <Route path="/tim-bac-si"     element={<TimBacSi />} />
                 <Route path="/tim-bac-si/:id" element={<ChiTietBacSi />} />
+
+                {/* Đặt lịch — cần đăng nhập, chỉ bệnh nhân */}
+                <Route path="/dat-lich/:id" element={
+                    <CanDangNhap>
+                        <CanVaiTro vaiTro={["benhnhan"]}>
+                            <DatLich />
+                        </CanVaiTro>
+                    </CanDangNhap>
+                } />
 
                 {/* Auth */}
                 <Route path="/dang-nhap" element={<DaCoTaiKhoan><DangNhap /></DaCoTaiKhoan>} />

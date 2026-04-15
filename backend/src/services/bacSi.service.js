@@ -100,25 +100,34 @@ export const dangKyLich = async (nguoiDungId, lichTuan) => {
   const bacSi = await BacSi.findOne({ nguoiDungId });
   if (!bacSi) throw new Error("Không tìm thấy hồ sơ bác sĩ");
 
-  for (const { ngay, khungGios } of lichTuan) {
-    const cacSlot = khungGios.map((gio) => ({ gio, daDat: false }));
+  for (const { ngay, khungGio } of lichTuan) {
+    const cacSlot = (khungGio || []).map((gio) => ({
+      gio,
+      daDat: false,
+    }));
+
     const viTri = bacSi.lichLamViec.findIndex((n) => n.ngay === ngay);
 
     if (viTri === -1) {
-      bacSi.lichLamViec.push({ ngay, khungGios: cacSlot });
+      bacSi.lichLamViec.push({ ngay, khungGio: cacSlot });
     } else {
       const daCoGio = new Set(
-        bacSi.lichLamViec[viTri].khungGios.map((k) => k.gio),
+        (bacSi.lichLamViec[viTri].khungGio || []).map((k) => k.gio)
       );
+
       const moiThem = cacSlot.filter((s) => !daCoGio.has(s.gio));
-      bacSi.lichLamViec[viTri].khungGios.push(...moiThem);
-      bacSi.lichLamViec[viTri].khungGios.sort((a, b) =>
-        a.gio.localeCompare(b.gio),
+
+      bacSi.lichLamViec[viTri].khungGio.push(...moiThem);
+
+      bacSi.lichLamViec[viTri].khungGio.sort((a, b) =>
+        a.gio.localeCompare(b.gio)
       );
     }
   }
 
+  bacSi.markModified("lichLamViec");
   await bacSi.save();
+
   return bacSi.lichLamViec;
 };
 
@@ -155,18 +164,27 @@ export const xoaNgay = async (nguoiDungId, bacSiId, ngay) => {
 
 // Lấy lịch còn trống (public — bệnh nhân dùng để đặt)
 export const layLichTrong = async (bacSiId, tuNgay, denNgay) => {
-  const bacSi = await BacSi.findById(bacSiId).select("lichLamViec");
+  const bacSi = await BacSi.findById(bacSiId);
+
   if (!bacSi) throw new Error("Không tìm thấy bác sĩ");
 
-  let lich = bacSi.lichLamViec;
-  if (tuNgay) lich = lich.filter((n) => n.ngay >= tuNgay);
-  if (denNgay) lich = lich.filter((n) => n.ngay <= denNgay);
+  console.log("====== RAW DATA ======");
+  console.log(JSON.stringify(bacSi.lichLamViec, null, 2));
 
-  return lich
-    .map((n) => ({
-      ngay: n.ngay,
-      khungGios: n.khungGios.filter((k) => !k.daDat),
-    }))
-    .filter((n) => n.khungGios.length > 0)
-    .sort((a, b) => a.ngay.localeCompare(b.ngay));
+  const result = (bacSi.lichLamViec || [])
+    .filter((item) => {
+      const d = item.ngay?.slice(0, 10);
+      return d >= tuNgay && d <= denNgay;
+    })
+    .map((item) => ({
+      ngay: item.ngay?.slice(0, 10),
+      khungGios: Array.isArray(item.khungGio)
+        ? item.khungGio.filter((k) => !k.daDat)
+        : [],
+    }));
+
+  console.log("====== RESPONSE ======");
+  console.log(JSON.stringify(result, null, 2));
+
+  return result;
 };

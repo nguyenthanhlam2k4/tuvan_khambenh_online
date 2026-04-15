@@ -56,7 +56,7 @@ export default function LichLamViec() {
     const luuLich = async () => {
         const lichTuan = Object.entries(chonMoi)
             .filter(([, set]) => set.size > 0)
-            .map(([ngay, set]) => ({ ngay, khungGios: [...set] }));
+            .map(([ngay, set]) => ({ ngay, khungGio: [...set] }));
 
         if (!lichTuan.length) return setMsg("Chưa chọn khung giờ nào");
 
@@ -159,7 +159,7 @@ export default function LichLamViec() {
                             </div>
 
                             {/* Slot hiện có */}
-                            {lichNgay?.khungGios?.map(k => (
+                            {lichNgay?.khungGio?.map(k => (
                                 <div key={k._id}
                                     style={{ ...s.slotExist, background: k.daDat ? "#FEF3C7" : "#D1FAE5", color: k.daDat ? "#92400E" : "#065F46" }}
                                     onClick={() => !laDaQua && handleXoaSlot(ngay, k._id, k.daDat)}
@@ -186,7 +186,7 @@ export default function LichLamViec() {
                                 >
                                     <option value="">+ Thêm giờ</option>
                                     {KHUNG_GIO_GY
-                                        .filter(g => !lichNgay?.khungGios?.some(k => k.gio === g) && !daChon.has(g))
+                                        .filter(g => !lichNgay?.khungGio?.some(k => k.gio === g) && !daChon.has(g))
                                         .map(g => <option key={g} value={g}>{g}</option>)
                                     }
                                 </select>

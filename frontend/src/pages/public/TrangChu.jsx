@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
-import { layDanhSachBacSi } from "../api/bacSiApi";
-import { useAuth } from "../context/AuthContext";
+import { layDanhSachBacSi } from "../../api/bacSiApi";
+import { useAuth } from "../../context/AuthContext";
 
 const CHUYEN_KHOA = [
     { ten: "Tim mạch",      icon: IconTim    },

@@ -7,6 +7,7 @@ import { connecDB } from "./config/db.js";
 import authRouter      from "./routers/auth.Routers.js";
 import bacSiRouter     from "./routers/bacSi.Routers.js";
 import nguoiDungRouter from "./routers/nguoiDung.Routers.js";
+import lichKhamRouter from "./routers/lichKham.Routers.js";
 
 dotenv.config();
 
@@ -28,6 +29,7 @@ app.use(cookieParser());
 app.use("/api/auth",       authRouter);
 app.use("/api/bac-si",     bacSiRouter);
 app.use("/api/nguoi-dung", nguoiDungRouter);
+app.use("/api/lich-kham", lichKhamRouter)
 
 // Health check
 app.get("/", (_req, res) => res.json({ message: "🚀 Server đang chạy", version: "2.0" }));

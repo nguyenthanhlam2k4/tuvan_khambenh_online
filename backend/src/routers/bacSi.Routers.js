@@ -17,9 +17,9 @@ import { xacThuc, phanQuyen } from "../middlewares/auth.middleware.js";
 const router = express.Router();
 
 // ── Public (không cần đăng nhập) ─────────────────────────────────────────────
-router.get("/",                    layDanhSach);       // danh sách + filter
-router.get("/:id",                 layChiTiet);        // chi tiết 1 bác sĩ
 router.get("/:id/lich-trong",      layLichTrong);      // slot còn trống
+router.get("/:id",                 layChiTiet);        // chi tiết 1 bác sĩ
+router.get("/",                    layDanhSach);       // danh sách + filter
 
 // ── Bác sĩ (cần đăng nhập + role bacsi) ──────────────────────────────────────
 router.get("/ho-so/ca-nhan",       xacThuc, phanQuyen("bacsi"),        layHoSoCaNhan);

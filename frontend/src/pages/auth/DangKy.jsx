@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../../context/AuthContext";
 
 const VAI_TRO = [
     { value: "benhnhan", label: "Bệnh nhân", moTa: "Tìm bác sĩ và đặt lịch khám" },
