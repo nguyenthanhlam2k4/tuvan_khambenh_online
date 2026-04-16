@@ -1,20 +1,13 @@
 import express from "express";
-import {
-    taoNguoiDungController,
-    layDanhSachNguoiDungController,
-    capNhatNguoiDungController,
-    xoaNguoiDungController,
-    layChiTietNguoiDungController,
-    layDanhSachNguoiDungTheoVaiTroController
-} from "../controllers/nguoiDung.controller.js";
+import { taoNguoiDung, layDanhSach, layChiTiet, capNhat, xoa } from "../controllers/nguoiDung.controller.js";
+import { xacThuc, phanQuyen } from "../middlewares/auth.middleware.js";
 
 const router = express.Router();
 
-router.post("/", taoNguoiDungController);
-router.get("/", layDanhSachNguoiDungController);
-router.get("/theo-vai-tro", layDanhSachNguoiDungTheoVaiTroController);
-router.get("/:id", layChiTietNguoiDungController);
-router.put("/:id", capNhatNguoiDungController);
-router.delete("/:id", xoaNguoiDungController);
+router.post("/",   taoNguoiDung);                                    // public — đăng ký
+router.get("/",    xacThuc, phanQuyen("admin"), layDanhSach);        // admin
+router.get("/:id", xacThuc, layChiTiet);
+router.put("/:id", xacThuc, capNhat);
+router.delete("/:id", xacThuc, phanQuyen("admin"), xoa);
 
 export default router;

@@ -3,6 +3,7 @@ import Sidebar from "../../components/admin/Sidebar";
 import QuanLyNguoiDung from "./QuanLyNguoiDung";
 import QuanLyBacSi from "./QuanLyBacSi";
 import TongQuan from "./TongQuan";
+import LichKham from "./Lichkham";
 
 function Placeholder({ title }) {
   return (
@@ -17,7 +18,7 @@ const TRANG = {
   "tong-quan": TongQuan,
   "nguoi-dung": QuanLyNguoiDung,
   "bac-si": QuanLyBacSi,
-  "lich-kham": () => <Placeholder title="Lịch khám" />,
+  "lich-kham": LichKham,
   chat: () => <Placeholder title="Chat & tư vấn" />,
 };
 

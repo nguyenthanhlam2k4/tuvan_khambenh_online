@@ -7,13 +7,11 @@ export function AuthProvider({ children }) {
     const [nguoiDung, setNguoiDung] = useState(null);
     const [dangTai, setDangTai] = useState(true);
 
-    // Khôi phục session khi reload trang
     useEffect(() => {
         const khoiPhuc = async () => {
             try {
                 const token = sessionStorage.getItem("accessToken");
                 if (!token) {
-                    // Thử dùng cookie refreshToken còn sót lại
                     const res = await lamMoiTokenAPI();
                     sessionStorage.setItem("accessToken", res.data.data.accessToken);
                 }
@@ -42,9 +40,11 @@ export function AuthProvider({ children }) {
     };
 
     const dangXuat = async () => {
-        try { await dangXuatAPI(); } catch { /* vẫn xoá dù lỗi */ }
+        try { await dangXuatAPI(); } catch { }
         sessionStorage.removeItem("accessToken");
         setNguoiDung(null);
+        // Redirect về trang chủ sau khi đăng xuất
+        window.location.href = "/";
     };
 
     return (

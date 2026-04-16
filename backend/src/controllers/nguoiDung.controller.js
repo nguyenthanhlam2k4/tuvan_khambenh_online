@@ -1,61 +1,36 @@
-import * as nguoiDungService from "../services/nguoiDung.service.js";
+import * as s from "../services/nguoiDung.service.js";
 
-//thêm
-export const taoNguoiDungController = async (req, res) => {
-    try {
-        const data = await nguoiDungService.taoNguoiDung(req.body);
-        res.status(201).json(data);
-    } catch (error) {
-        res.status(501).json({message: error.message})
-    }
-}
+const ok  = (res, data, status = 200) => res.status(status).json({ success: true,  data });
+const err = (res, msg,  status = 500) => res.status(status).json({ success: false, message: msg });
 
-//lấy danh sách tất cả người dùng
-export const layDanhSachNguoiDungController = async (req, res) => {
-    try {
-        const data = await nguoiDungService.layDanhSachNguoiDung();
-        res.json(data);
-    } catch (error) {
-        res.status(501).json({message: error.message})
-    }
-}
-//lấy danh sách tất cả người dùng với vai trò bác sĩ
-export const layDanhSachNguoiDungTheoVaiTroController = async (req, res) => {
-    try {
-        const { vaiTro = "bacsi", cursor, limit = 10 } = req.query;
-        const data = await nguoiDungService.layDanhSachNguoiDungTheVaiTro(vaiTro, cursor, Number(limit));
-        res.json(data);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
+export const taoNguoiDung = async (req, res) => {
+    try { ok(res, await s.taoNguoiDung(req.body), 201); }
+    catch (e) { err(res, e.message, e.message.includes("Email") ? 409 : 400); }
 };
 
-//xem chi tiết người dùng
-export const layChiTietNguoiDungController = async (req, res) => {
-    try {
-        const data = await nguoiDungService.layChiTietNguoiDung(req.params.id);
-        res.json(data);
-    } catch (error) {
-        res.status(404).json({message: error.message})
-    }
-}
+export const layDanhSach = async (req, res) => {
+    try { ok(res, await s.layDanhSachNguoiDung(req.query)); }
+    catch (e) { err(res, e.message); }
+};
 
-//cập nhật người dùng
-export const capNhatNguoiDungController = async (req, res) =>{
-    try {
-        const data = await nguoiDungService.capNhatNguoiDung(req.params.id, req.body);
-        res.json(data);
-    } catch (error) {
-        res.status(404).json({message: error.message})
-    }
-}
+export const layChiTiet = async (req, res) => {
+    try { ok(res, await s.layChiTietNguoiDung(req.params.id)); }
+    catch (e) { err(res, e.message, 404); }
+};
 
-//xóa người dùng
-export const xoaNguoiDungController = async(req, res) => {
+export const capNhat = async (req, res) => {
     try {
-        const data = await nguoiDungService.xoaNguoiDung(req.params.id);
-        res.json(data);
-    } catch (error) {
-        res.status(404).json({message: error.message})
-    }
-}
+        // Kiểm tra chủ sở hữu: chỉ chính mình hoặc admin mới được sửa
+        const { id: targetId } = req.params;
+        const { id: currentId, vaiTro } = req.nguoiDung;
+        if (vaiTro !== "admin" && currentId !== targetId) {
+            return err(res, "Bạn không có quyền chỉnh sửa tài khoản này", 403);
+        }
+        ok(res, await s.capNhatNguoiDung(targetId, req.body, req.nguoiDung));
+    } catch (e) { err(res, e.message, 400); }
+};
+
+export const xoa = async (req, res) => {
+    try { ok(res, await s.xoaNguoiDung(req.params.id)); }
+    catch (e) { err(res, e.message, 404); }
+};

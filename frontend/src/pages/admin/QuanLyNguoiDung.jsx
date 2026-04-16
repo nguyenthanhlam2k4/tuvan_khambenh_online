@@ -15,31 +15,26 @@ function fmtDate(str) {
 }
 
 export default function QuanLyNguoiDung() {
-    const [ds, setDs]           = useState([]);
-    const [loading, setLoad]    = useState(true);
-    const [tuKhoa, setTuKhoa]   = useState("");
-    const [vaiTro, setVaiTro]   = useState("");
-    const [trang, setTrang]     = useState(1);
-    const [tongTrang, setTT]    = useState(1);
-    const [tongSo, setTS]       = useState(0);
-    const [msg, setMsg]         = useState("");
+    const [ds, setDs]         = useState([]);
+    const [loading, setLoad]  = useState(true);
+    const [tuKhoa, setTuKhoa] = useState("");
+    const [vaiTro, setVaiTro] = useState("");
+    const [trang, setTrang]   = useState(1);
+    const [tongTrang, setTT]  = useState(1);
+    const [tongSo, setTS]     = useState(0);
+    const [msg, setMsg]       = useState("");
 
     const tai = async (t = 1, tk = tuKhoa, vt = vaiTro) => {
         setLoad(true);
         try {
-            const params = new URLSearchParams({ trang: t, gioiHan: 10 });
-            if (vt) params.set("vaiTro", vt);
-            const r = await api.get(`/nguoi-dung?${params}`);
-            // API cũ trả mảng thẳng — normalize
-            const raw = r.data.data ?? r.data;
-            const arr  = Array.isArray(raw) ? raw : (raw.danhSach ?? []);
-            // filter phía client nếu API chưa hỗ trợ tìm kiếm
-            const filtered = tk
-                ? arr.filter(u => u.ten?.toLowerCase().includes(tk.toLowerCase()) || u.email?.toLowerCase().includes(tk.toLowerCase()))
-                : arr;
-            setDs(filtered);
-            setTS(raw.tongSo ?? filtered.length);
-            setTT(raw.tongTrang ?? 1);
+            const params = { trang: t, gioiHan: 10 };
+            if (vt) params.vaiTro  = vt;
+            if (tk) params.tuKhoa  = tk;
+            const r = await api.get("/nguoi-dung", { params });
+            const { danhSach, tongSo: ts, tongTrang: tt } = r.data.data;
+            setDs(danhSach);
+            setTS(ts);
+            setTT(tt);
             setTrang(t);
         } catch { setDs([]); }
         finally { setLoad(false); }
@@ -48,6 +43,12 @@ export default function QuanLyNguoiDung() {
     useEffect(() => { tai(); }, []);
 
     const onSearch = e => { e.preventDefault(); tai(1); };
+
+    const onVaiTro = (vt) => {
+        setVaiTro(vt);
+        setTrang(1);
+        tai(1, tuKhoa, vt);
+    };
 
     const onXoa = async (id, ten) => {
         if (!confirm(`Xoá người dùng "${ten}"?`)) return;
@@ -63,20 +64,30 @@ export default function QuanLyNguoiDung() {
     return (
         <div>
             {/* Toolbar */}
-            <form onSubmit={onSearch} style={s.toolbar}>
-                <input value={tuKhoa} onChange={e => setTuKhoa(e.target.value)}
-                    placeholder="Tìm theo tên, email..."
-                    style={s.searchInput} />
-                <select value={vaiTro} onChange={e => { setVaiTro(e.target.value); tai(1, tuKhoa, e.target.value); }}
-                    style={s.select}>
-                    <option value="">Tất cả vai trò</option>
-                    <option value="benhnhan">Bệnh nhân</option>
-                    <option value="bacsi">Bác sĩ</option>
-                    <option value="admin">Admin</option>
-                </select>
-                <button type="submit" style={s.searchBtn}>Tìm</button>
-                <span style={{ fontSize: 12, color: "#9CA3AF", marginLeft: "auto" }}>{tongSo} người dùng</span>
-            </form>
+            <div style={s.toolbar}>
+                <form onSubmit={onSearch} style={{ display: "flex", gap: 6, flex: 1 }}>
+                    <input value={tuKhoa} onChange={e => setTuKhoa(e.target.value)}
+                        placeholder="Tìm theo tên, email..."
+                        style={s.searchInput} />
+                    <button type="submit" style={s.searchBtn}>Tìm</button>
+                </form>
+                <span style={{ fontSize: 12, color: "#9CA3AF" }}>{tongSo} người dùng</span>
+            </div>
+
+            {/* Filter vai trò */}
+            <div style={s.filterRow}>
+                {[
+                    { key: "",          label: "Tất cả" },
+                    { key: "benhnhan",  label: "Bệnh nhân" },
+                    { key: "bacsi",     label: "Bác sĩ" },
+                    { key: "admin",     label: "Admin" },
+                ].map(f => (
+                    <button key={f.key} onClick={() => onVaiTro(f.key)}
+                        style={{ ...s.filterBtn, ...(vaiTro === f.key ? s.filterActive : {}) }}>
+                        {f.label}
+                    </button>
+                ))}
+            </div>
 
             {msg && (
                 <div style={{ ...s.msgBox, background: msg.startsWith("✓") ? "#ECFDF5" : "#FEF2F2", color: msg.startsWith("✓") ? "#065F46" : "#DC2626" }}>
@@ -105,7 +116,9 @@ export default function QuanLyNguoiDung() {
                                 <tr key={u._id} style={s.tr}>
                                     <td style={s.td}>
                                         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                                            <div style={{ ...s.avatar, background: vt.bg, color: vt.color }}>{u.ten?.[0] || "?"}</div>
+                                            <div style={{ ...s.avatar, background: vt.bg, color: vt.color }}>
+                                                {u.ten?.[0] || "?"}
+                                            </div>
                                             <div>
                                                 <div style={{ fontSize: 13, fontWeight: 500, color: "#111" }}>{u.ten}</div>
                                                 <div style={{ fontSize: 11, color: "#9CA3AF" }}>{u.email}</div>
@@ -134,9 +147,14 @@ export default function QuanLyNguoiDung() {
             {/* Phân trang */}
             {tongTrang > 1 && (
                 <div style={s.paging}>
-                    <button disabled={trang === 1} onClick={() => tai(trang - 1)} style={{ ...s.pageBtn, opacity: trang === 1 ? 0.4 : 1 }}>←</button>
-                    <span style={{ fontSize: 12, color: "#6B7280" }}>Trang {trang} / {tongTrang}</span>
-                    <button disabled={trang === tongTrang} onClick={() => tai(trang + 1)} style={{ ...s.pageBtn, opacity: trang === tongTrang ? 0.4 : 1 }}>→</button>
+                    <button disabled={trang === 1} onClick={() => tai(trang - 1)}
+                        style={{ ...s.pageBtn, opacity: trang === 1 ? 0.4 : 1 }}>← Trước</button>
+                    {Array.from({ length: tongTrang }, (_, i) => i + 1).map(p => (
+                        <button key={p} onClick={() => tai(p)}
+                            style={{ ...s.pageBtn, ...(p === trang ? s.pageBtnActive : {}) }}>{p}</button>
+                    ))}
+                    <button disabled={trang === tongTrang} onClick={() => tai(trang + 1)}
+                        style={{ ...s.pageBtn, opacity: trang === tongTrang ? 0.4 : 1 }}>Sau →</button>
                 </div>
             )}
         </div>
@@ -144,10 +162,12 @@ export default function QuanLyNguoiDung() {
 }
 
 const s = {
-    toolbar:    { display: "flex", gap: 8, marginBottom: 12, alignItems: "center" },
+    toolbar:    { display: "flex", gap: 8, marginBottom: 8, alignItems: "center" },
     searchInput:{ flex: 1, height: 32, border: "0.5px solid #E5E7EB", borderRadius: 8, padding: "0 10px", fontSize: 13, color: "#111" },
-    select:     { height: 32, border: "0.5px solid #E5E7EB", borderRadius: 8, padding: "0 8px", fontSize: 13 },
     searchBtn:  { height: 32, padding: "0 14px", background: "#111", color: "#fff", border: "none", borderRadius: 8, fontSize: 13, cursor: "pointer" },
+    filterRow:  { display: "flex", gap: 4, marginBottom: 12 },
+    filterBtn:  { height: 28, padding: "0 14px", border: "0.5px solid #E5E7EB", borderRadius: 20, fontSize: 12, background: "#fff", color: "#6B7280", cursor: "pointer" },
+    filterActive:{ background: "#111", color: "#fff", borderColor: "#111" },
     msgBox:     { padding: "8px 12px", borderRadius: 8, fontSize: 12, marginBottom: 10 },
     tableWrap:  { border: "0.5px solid #E5E7EB", borderRadius: 10, overflow: "hidden" },
     table:      { width: "100%", borderCollapse: "collapse", fontSize: 13 },
@@ -159,6 +179,7 @@ const s = {
     avatar:     { width: 28, height: 28, borderRadius: "50%", fontSize: 11, fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 },
     badge:      { padding: "2px 8px", borderRadius: 20, fontSize: 11, fontWeight: 500 },
     xoaBtn:     { height: 26, padding: "0 10px", border: "0.5px solid #FCA5A5", borderRadius: 6, background: "#FEF2F2", color: "#DC2626", fontSize: 11, cursor: "pointer" },
-    paging:     { display: "flex", justifyContent: "center", gap: 10, alignItems: "center", marginTop: 12 },
-    pageBtn:    { height: 28, padding: "0 12px", border: "0.5px solid #E5E7EB", borderRadius: 6, background: "#fff", fontSize: 13, cursor: "pointer" },
+    paging:     { display: "flex", justifyContent: "center", gap: 6, alignItems: "center", marginTop: 12 },
+    pageBtn:    { height: 28, minWidth: 28, padding: "0 8px", border: "0.5px solid #E5E7EB", borderRadius: 6, background: "#fff", fontSize: 12, cursor: "pointer" },
+    pageBtnActive:{ background: "#111", color: "#fff", borderColor: "#111" },
 };
