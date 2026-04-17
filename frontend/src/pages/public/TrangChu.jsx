@@ -382,4 +382,4 @@ const s = {
     footer:    { borderTop: "0.5px solid #E5E7EB" },
     footerIn:  { maxWidth: 1100, margin: "0 auto", padding: "20px 24px", display: "flex", alignItems: "center", justifyContent: "space-between" },
     footerLink:{ fontSize: 12, color: "#9CA3AF", cursor: "pointer" },
-};
+};  
