@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { layLichCuaBenhNhan, huyLich } from "../../api/lichKhamApi";
+import { layHoacTaoPhong } from "../../api/chatApi";
 import { useNavigate } from "react-router";
 
 const TRANG_THAI = {
@@ -52,6 +53,16 @@ export default function LichKham() {
     };
 
     const onFilter = (f) => { setFilter(f); tai(1, f); };
+
+    const onChat = async (l) => {
+        const bacSiNguoiDungId = l.bacSiId?.nguoiDungId?._id || l.bacSiId?.nguoiDungId;
+        if (!bacSiNguoiDungId) return;
+        try {
+            await layHoacTaoPhong(bacSiNguoiDungId, l._id);
+        } catch { /* phòng đã tồn tại — bỏ qua */ }
+        navigate(`/benh-nhan?tab=chat`);
+    };
+
 
     return (
         <div style={{ maxWidth: 760 }}>
@@ -114,9 +125,16 @@ export default function LichKham() {
                                 {/* Trạng thái + action */}
                                 <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6 }}>
                                     <span style={{ ...s.badge, background: ts.bg, color: ts.color }}>{ts.label}</span>
-                                    {coTheHuy && (
-                                        <button onClick={() => onHuy(l._id)} style={s.huyBtn}>Hủy lịch</button>
-                                    )}
+                                    <div style={{ display: "flex", gap: 5 }}>
+                                        {["daxacnhan","dakham"].includes(l.trangThai) && (
+                                            <button onClick={() => onChat(l)} style={s.chatBtn}>
+                                                💬 Chat
+                                            </button>
+                                        )}
+                                        {coTheHuy && (
+                                            <button onClick={() => onHuy(l._id)} style={s.huyBtn}>Hủy lịch</button>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         );
@@ -140,7 +158,7 @@ const s = {
     toolbar:      { display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12, flexWrap: "wrap", gap: 8 },
     filterGroup:  { display: "flex", gap: 4, flexWrap: "wrap" },
     filterBtn:    { height: 30, padding: "0 12px", border: "0.5px solid #E5E7EB", borderRadius: 20, fontSize: 11, background: "#fff", color: "#6B7280", cursor: "pointer" },
-    filterActive: { background: "#111", color: "#fff", border: "0.5px solid #1D9E75" },
+    filterActive: { background: "#111", color: "#fff", borderColor: "#111" },
     addBtn:       { height: 32, padding: "0 14px", background: "#1D9E75", color: "#fff", border: "none", borderRadius: 8, fontSize: 12, fontWeight: 500, cursor: "pointer" },
     msgBox:       { padding: "8px 14px", borderRadius: 8, fontSize: 12, marginBottom: 10 },
     empty:        { textAlign: "center", padding: "48px 20px", display: "flex", flexDirection: "column", alignItems: "center", gap: 8, background: "#fff", border: "0.5px solid #E5E7EB", borderRadius: 12 },
@@ -154,6 +172,7 @@ const s = {
     bsSpec:       { fontSize: 12, color: "#6B7280", marginTop: 2 },
     ghiChu:       { fontSize: 11, color: "#9CA3AF", marginTop: 4, fontStyle: "italic" },
     badge:        { padding: "3px 9px", borderRadius: 20, fontSize: 11, fontWeight: 500 },
+    chatBtn:      { height: 26, padding: "0 10px", border: "0.5px solid #6EE7B7", borderRadius: 6, background: "#ECFDF5", color: "#065F46", fontSize: 11, cursor: "pointer", fontWeight: 500 },
     huyBtn:       { height: 26, padding: "0 10px", border: "0.5px solid #FCA5A5", borderRadius: 6, background: "#FEF2F2", color: "#DC2626", fontSize: 11, cursor: "pointer" },
     paging:       { display: "flex", justifyContent: "center", gap: 10, alignItems: "center", marginTop: 14 },
     pageBtn:      { height: 28, padding: "0 12px", border: "0.5px solid #E5E7EB", borderRadius: 6, background: "#fff", fontSize: 13, cursor: "pointer" },

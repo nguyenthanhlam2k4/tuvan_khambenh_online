@@ -5,18 +5,21 @@ import TongQuan  from "./TongQuan";
 import LichKham  from "./LichKham";
 import HoSo      from "./HoSo";
 import TimBacSi  from "../public/TimBacSi.jsx";
+import ChatBenhNhan from "./ChatBenhNhan.jsx";
 
 const TRANG = {
     "tong-quan":  TongQuan,
     "lich-kham":  LichKham,
     "tim-bac-si": TimBacSi,
     "ho-so":      HoSo,
+    "chat": ChatBenhNhan,
 };
 const TIEU_DE = {
     "tong-quan":  "Tổng quan",
     "lich-kham":  "Lịch khám",
     "tim-bac-si": "Tìm bác sĩ",
     "ho-so":      "Hồ sơ cá nhân",
+    "chat": "Chat",
 };
 
 export default function BenhNhanDashboard() {

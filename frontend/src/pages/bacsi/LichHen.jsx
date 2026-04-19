@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { layLichCuaBacSi, doiTrangThai } from "../../api/lichKhamApi";
+import { layHoacTaoPhong } from "../../api/chatApi";
+import { useNavigate } from "react-router";
 
 const TRANG_THAI = {
     choduyet:  { label: "Chờ duyệt",   bg: "#FEF3C7", color: "#92400E" },
@@ -16,6 +18,7 @@ function formatNgay(str) {
 }
 
 export default function LichHen() {
+    const navigate = useNavigate();
     const [lich, setLich]       = useState([]);
     const [loading, setLoad]    = useState(true);
     const [filter, setFilter]   = useState("");
@@ -26,6 +29,15 @@ export default function LichHen() {
     const [msg, setMsg]         = useState("");
 
     const today = new Date().toISOString().slice(0, 10);
+
+
+    const onChat = async (l) => {
+        const benhNhanNguoiDungId = l.benhNhanId?.nguoiDungId?._id || l.benhNhanId?.nguoiDungId;
+        const bacSiNguoiDungId   = l.bacSiId?.nguoiDungId?._id    || l.bacSiId?.nguoiDungId;
+        if (!benhNhanNguoiDungId) return;
+        try { await layHoacTaoPhong(benhNhanNguoiDungId, bacSiNguoiDungId, l._id); } catch {}
+        navigate("/bac-si?tab=chat");
+    };
 
     const tai = async (t = 1, f = filter) => {
         setLoad(true);
@@ -156,6 +168,9 @@ export default function LichHen() {
                                             <button onClick={() => onDoiTrangThai(l._id, "dahuy")}  style={s.btnR}>Huỷ</button>
                                         </>
                                     )}
+                                    {["choduyet","daxacnhan","dakham"].includes(l.trangThai) && (
+                                        <button onClick={() => onChat(l)} style={s.btnChat}>💬</button>
+                                    )}
                                 </div>
                             </div>
                         );
@@ -190,7 +205,7 @@ const s = {
     searchInput: { height: 32, border: "0.5px solid #E5E7EB", borderRadius: 8, padding: "0 10px", fontSize: 12, color: "#111", width: 200 },
     filterGroup: { display: "flex", gap: 4, flexWrap: "wrap" },
     filterBtn:   { height: 28, padding: "0 12px", border: "0.5px solid #E5E7EB", borderRadius: 20, fontSize: 11, background: "#fff", color: "#6B7280", cursor: "pointer" },
-    filterActive:{ background: "#111", color: "#fff", border: "0.5px solid #1D9E75" },
+    filterActive:{ background: "#111", color: "#fff", borderColor: "#111" },
     msgBox:      { padding: "8px 12px", borderRadius: 8, fontSize: 12, marginBottom: 10 },
     empty:       { background: "#fff", border: "0.5px solid #E5E7EB", borderRadius: 10, padding: "36px 20px", textAlign: "center", fontSize: 13, color: "#9CA3AF" },
     list:        { display: "flex", flexDirection: "column", gap: 6 },
@@ -204,6 +219,7 @@ const s = {
     sub:         { fontSize: 11, color: "#9CA3AF", marginTop: 1 },
     ghiChu:      { fontSize: 11, color: "#6B7280", marginTop: 3, fontStyle: "italic" },
     badge:       { padding: "3px 9px", borderRadius: 20, fontSize: 11, fontWeight: 500, flexShrink: 0 },
+    btnChat:     { height: 28, padding: "0 10px", border: "0.5px solid #BFDBFE", borderRadius: 6, background: "#EFF6FF", color: "#1D4ED8", fontSize: 11, cursor: "pointer", fontWeight: 600 },
     btnG:        { height: 28, padding: "0 10px", border: "0.5px solid #6EE7B7", borderRadius: 6, background: "#ECFDF5", color: "#065F46", fontSize: 11, fontWeight: 500, cursor: "pointer" },
     btnR:        { height: 28, padding: "0 10px", border: "0.5px solid #FCA5A5", borderRadius: 6, background: "#FEF2F2", color: "#DC2626", fontSize: 11, cursor: "pointer" },
     paging:      { display: "flex", justifyContent: "center", gap: 10, alignItems: "center", marginTop: 12 },

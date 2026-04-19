@@ -128,7 +128,7 @@ export const khoiTaoSocket = (io) => {
             socket.emit("trang-thai-online", ketQua);
         });
 
-        // ── Ngắt kết nối ─────────────────────────────────────────────────────
+        // ── Ngắt kết nối ─────────────────────────────────────────────────────    
         socket.on("disconnect", () => {
             xoaOnline(nguoiDungId, socket.id);
             if (!laOnline(nguoiDungId)) {
