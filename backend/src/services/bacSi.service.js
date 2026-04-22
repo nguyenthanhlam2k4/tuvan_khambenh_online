@@ -168,9 +168,6 @@ export const layLichTrong = async (bacSiId, tuNgay, denNgay) => {
 
   if (!bacSi) throw new Error("Không tìm thấy bác sĩ");
 
-  console.log("====== RAW DATA ======");
-  console.log(JSON.stringify(bacSi.lichLamViec, null, 2));
-
   const result = (bacSi.lichLamViec || [])
     .filter((item) => {
       const d = item.ngay?.slice(0, 10);
@@ -182,9 +179,6 @@ export const layLichTrong = async (bacSiId, tuNgay, denNgay) => {
         ? item.khungGio.filter((k) => !k.daDat)
         : [],
     }));
-
-  console.log("====== RESPONSE ======");
-  console.log(JSON.stringify(result, null, 2));
 
   return result;
 };

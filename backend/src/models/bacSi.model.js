@@ -22,6 +22,8 @@ const bacSiSchema = new mongoose.Schema({
   benhVien: String,
   moTa: String,
   hinhAnh: String,
+  diemDanhGia: { type: Number, default: 0 },
+  tongDanhGia: { type: Number, default: 0 },
   daXacMinh: {
         type: Boolean,
         default: false

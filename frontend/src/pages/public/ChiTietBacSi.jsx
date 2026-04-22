@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router";
-import { layChiTietBacSi, layLichTrong } from "../../api/bacSiApi.js";
-import { useAuth } from "../../context/AuthContext.jsx";
+import { layChiTietBacSi, layLichTrong } from "../../api/bacSiApi";
+import { layDanhGiaBacSi } from "../../api/danhGiaApi";
+import { useAuth } from "../../context/AuthContext";
 
 const THU = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"];
 
@@ -21,6 +22,7 @@ function lay7Ngay() {
 }
 
 export default function ChiTietBacSi() {
+    
     const { id }    = useParams();
     const navigate  = useNavigate();
     const { daDangNhap } = useAuth();
@@ -28,6 +30,7 @@ export default function ChiTietBacSi() {
     const [bacSi, setBacSi]       = useState(null);
     const [lich, setLich]         = useState([]);
     const [loading, setLoad]      = useState(true);
+    const [danhGias, setDanhGias] = useState({ danhSach: [], tongSo: 0, phanBo: [] });
     const [ngayChon, setNgay]     = useState(null);
     const [gioChon, setGio]       = useState(null);
     const [loadLich, setLoadLich] = useState(false);
@@ -42,19 +45,20 @@ export default function ChiTietBacSi() {
         Promise.all([
             layChiTietBacSi(id),
             layLichTrong(id, tuNgay, denNgay),
-        ]).then(([rBs, rLich]) => {
-            setBacSi(rBs.data.data);
-            setLich(rLich.data.data);
-        }).catch(() => navigate("/tim-bac-si"))
+            layDanhGiaBacSi(id)
+        ]).then(([rBs, rLich, rDanhGia]) => {
+            console.log(rDanhGia.data);
+    setBacSi(rBs.data.data);
+    setLich(rLich.data.data);
+    setDanhGias(rDanhGia.data.data);
+}).catch(() => navigate("/tim-bac-si"))
           .finally(() => setLoad(false));
-          console.log("LICH FRONTEND:", lich);
     }, [id]);
-
+    
     const ngayCoLich = lich.map(n => n.ngay);
     const lichNgayChon = lich.find(n => n.ngay === ngayChon);
 
     const onDatLich = () => {
-        console.log("CLICK BUTTON");
         if (!daDangNhap) return navigate("/dang-nhap");
         if (!ngayChon || !gioChon) return;
         // Phase 3 — navigate đến form đặt lịch
@@ -66,8 +70,10 @@ export default function ChiTietBacSi() {
 
     const ten   = bacSi.nguoiDungId?.ten || "Bác sĩ";
     const soSao = bacSi.diemDanhGia > 0 ? bacSi.diemDanhGia.toFixed(1) : null;
-    console.log("ngayChon:", ngayChon);
-console.log("lichNgayChon:", lichNgayChon);
+    console.log("soSao:", soSao);
+console.log("bacSi.tongDanhGia:", bacSi?.tongDanhGia);
+    
+    
     return (
         <div style={s.page}>
             {/* Header */}
@@ -127,6 +133,7 @@ console.log("lichNgayChon:", lichNgayChon);
                             <InfoRow label="Bệnh viện"    value={bacSi.benhVien || "—"} />
                             <InfoRow label="Kinh nghiệm"  value={bacSi.soNamKinhNghiem > 0 ? `${bacSi.soNamKinhNghiem} năm` : "—"} />
                         </div>
+                        <DanhGiaSection bacSi={bacSi} danhGias={danhGias} />
                     </div>
 
                     {/* CỘT PHẢI — đặt lịch */}
@@ -227,6 +234,73 @@ function StatBox({ value, label }) {
     );
 }
 
+
+// ── Đánh giá section ──────────────────────────────────────────────────────────
+function DanhGiaSection({ bacSi, danhGias }) {
+    const { danhSach, tongSo, phanBo } = danhGias;
+    const diem = bacSi.diemDanhGia;
+    console.log("diem:", diem);
+    console.log("tongSo:", tongSo);
+    console.log("phanBo:", phanBo);
+
+    return (
+        <div style={{ background: "#fff", border: "0.5px solid #E5E7EB", borderRadius: 14, padding: "18px 20px" }}>
+            <div style={{ fontSize: 14, fontWeight: 600, color: "#111", marginBottom: 14, paddingBottom: 10, borderBottom: "0.5px solid #F3F4F6" }}>
+                Đánh giá ({tongSo})
+            </div>
+
+            {tongSo === 0 ? (
+                <div style={{ textAlign: "center", padding: "20px 0", color: "#9CA3AF", fontSize: 13 }}>
+                    Chưa có đánh giá nào
+                </div>
+            ) : (
+                <>
+                    {/* Tổng quan điểm */}
+                    <div style={{ display: "flex", gap: 20, alignItems: "center", marginBottom: 16 }}>
+                        <div style={{ textAlign: "center" }}>
+                            <div style={{ fontSize: 40, fontWeight: 800, color: "#111", lineHeight: 1 }}>{diem?.toFixed(1) || "—"}</div>
+                            <div style={{ fontSize: 13, color: "#FBBF24", marginTop: 4 }}>{"★".repeat(Math.round(diem || 0))}</div>
+                            <div style={{ fontSize: 11, color: "#9CA3AF", marginTop: 2 }}>{tongSo} đánh giá</div>
+                        </div>
+                        <div style={{ flex: 1 }}>
+                            {(phanBo || []).map(pb => (
+                                <div key={pb.sao} style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
+                                    <span style={{ fontSize: 11, color: "#9CA3AF", width: 14 }}>{pb.sao}</span>
+                                    <span style={{ fontSize: 10, color: "#FBBF24" }}>★</span>
+                                    <div style={{ flex: 1, height: 6, background: "#F3F4F6", borderRadius: 3, overflow: "hidden" }}>
+                                        <div style={{ width: tongSo ? `${(pb.soLuong / tongSo) * 100}%` : "0%", height: "100%", background: "#FBBF24", borderRadius: 3 }} />
+                                    </div>
+                                    <span style={{ fontSize: 11, color: "#9CA3AF", width: 18, textAlign: "right" }}>{pb.soLuong}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Danh sách nhận xét */}
+                    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                        {danhSach.map(dg => (
+                            <div key={dg._id} style={{ padding: "12px 14px", background: "#F8FAFC", borderRadius: 10 }}>
+                                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
+                                    <span style={{ fontSize: 13, fontWeight: 500, color: "#111" }}>
+                                        {dg.benhNhanId?.nguoiDungId?.ten || "Bệnh nhân"}
+                                    </span>
+                                    <span style={{ fontSize: 13, color: "#FBBF24" }}>{"★".repeat(dg.soSao)}</span>
+                                </div>
+                                {dg.nhanXet && (
+                                    <p style={{ fontSize: 13, color: "#6B7280", margin: 0, lineHeight: 1.5 }}>{dg.nhanXet}</p>
+                                )}
+                                <div style={{ fontSize: 11, color: "#D1D5DB", marginTop: 4 }}>
+                                    {new Date(dg.createdAt).toLocaleDateString("vi-VN")}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </>
+            )}
+        </div>
+    );
+}
+
 function InfoRow({ label, value }) {
     return (
         <div style={{ display: "flex", justifyContent: "space-between", padding: "7px 0", borderBottom: "0.5px solid #F3F4F6" }}>
@@ -272,14 +346,14 @@ const s = {
     ngayLabel:     { fontSize: 12, fontWeight: 500, color: "#374151", marginBottom: 8 },
     ngayGrid:      { display: "grid", gridTemplateColumns: "repeat(7,1fr)", gap: 4, marginBottom: 16 },
     ngayItem:      { textAlign: "center", padding: "7px 2px", borderRadius: 8, border: "0.5px solid #E5E7EB", cursor: "pointer", background: "#fff", position: "relative" },
-    ngayItemActive:{ background: "#1D9E75", border: "0.5px solid #1D9E75" },
+    ngayItemActive:{ background: "#1D9E75", borderColor: "#1D9E75" },
     ngayItemDisabled:{ textAlign: "center", padding: "7px 2px", borderRadius: 8, background: "#F8F9FA", opacity: 0.4 },
     ngayThu:       { fontSize: 10, color: "#9CA3AF" },
     ngayNum:       { fontSize: 12, fontWeight: 600, color: "#111", marginTop: 2 },
     ngayDot:       { width: 4, height: 4, borderRadius: "50%", background: "#1D9E75", margin: "3px auto 0" },
     gioGrid:       { display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 16 },
     gioBtn:        { height: 32, padding: "0 12px", border: "0.5px solid #E5E7EB", borderRadius: 8, background: "#fff", fontSize: 12, fontWeight: 500, cursor: "pointer", color: "#374151" },
-    gioBtnActive:  { background: "#1D9E75", border: "0.5px solid #1D9E75" , color: "#fff" },
+    gioBtnActive:  { background: "#1D9E75", borderColor: "#1D9E75", color: "#fff" },
     summary:       { background: "#F8FAFC", borderRadius: 10, padding: "12px 14px", marginBottom: 14 },
     summaryRow:    { display: "flex", justifyContent: "space-between", padding: "4px 0" },
     summaryLabel:  { fontSize: 12, color: "#9CA3AF" },

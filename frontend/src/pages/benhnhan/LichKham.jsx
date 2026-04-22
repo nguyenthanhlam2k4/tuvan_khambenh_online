@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { layLichCuaBenhNhan, huyLich } from "../../api/lichKhamApi";
 import { layHoacTaoPhong } from "../../api/chatApi";
+import { kiemTraDaDanhGia } from "../../api/danhGiaApi";
+import DanhGiaModal from "../../components/DanhGiaModal";
 import { useNavigate } from "react-router";
 
 const TRANG_THAI = {
@@ -23,6 +25,8 @@ export default function LichKham() {
     const [loading, setLoad]    = useState(true);
     const [filter, setFilter]   = useState("");
     const [msg, setMsg]         = useState("");
+    const [danhGiaLich, setDgLich] = useState(null);  // lịch đang mở modal
+    const [daDgSet, setDaDgSet]   = useState(new Set()); // set lichKhamId đã đánh giá
     const [trang, setTrang]     = useState(1);
     const [tongTrang, setTT]    = useState(1);
 
@@ -53,6 +57,18 @@ export default function LichKham() {
     };
 
     const onFilter = (f) => { setFilter(f); tai(1, f); };
+
+    const onMoDanhGia = async (l) => {
+        // Kiểm tra đã đánh giá chưa trước khi mở modal
+        try {
+            const r = await kiemTraDaDanhGia(l._id);
+            if (r.data.data.daDanhGia) {
+                setMsg("Bạn đã đánh giá lịch khám này rồi");
+                return;
+            }
+        } catch { /* bỏ qua nếu lỗi */ }
+        setDgLich(l);
+    };
 
     const onChat = async (l) => {
         const bacSiNguoiDungId = l.bacSiId?.nguoiDungId?._id || l.bacSiId?.nguoiDungId;
@@ -126,6 +142,9 @@ export default function LichKham() {
                                 <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6 }}>
                                     <span style={{ ...s.badge, background: ts.bg, color: ts.color }}>{ts.label}</span>
                                     <div style={{ display: "flex", gap: 5 }}>
+                                        {l.trangThai === "dakham" && !daDgSet.has(l._id) && (
+                                            <button onClick={() => onMoDanhGia(l)} style={s.dgBtn}>⭐ Đánh giá</button>
+                                        )}
                                         {["daxacnhan","dakham"].includes(l.trangThai) && (
                                             <button onClick={() => onChat(l)} style={s.chatBtn}>
                                                 💬 Chat
@@ -150,6 +169,17 @@ export default function LichKham() {
                     <button disabled={trang === tongTrang} onClick={() => tai(trang + 1)} style={{ ...s.pageBtn, opacity: trang === tongTrang ? 0.4 : 1 }}>→</button>
                 </div>
             )}
+        {/* Modal đánh giá */}
+            {danhGiaLich && (
+                <DanhGiaModal
+                    lich={danhGiaLich}
+                    onClose={() => setDgLich(null)}
+                    onSuccess={() => {
+                        setDaDgSet(prev => new Set([...prev, danhGiaLich._id]));
+                        setMsg("✓ Đánh giá thành công! Cảm ơn bạn.");
+                    }}
+                />
+            )}
         </div>
     );
 }
@@ -172,6 +202,7 @@ const s = {
     bsSpec:       { fontSize: 12, color: "#6B7280", marginTop: 2 },
     ghiChu:       { fontSize: 11, color: "#9CA3AF", marginTop: 4, fontStyle: "italic" },
     badge:        { padding: "3px 9px", borderRadius: 20, fontSize: 11, fontWeight: 500 },
+    dgBtn:        { height: 26, padding: "0 10px", border: "0.5px solid #FCD34D", borderRadius: 6, background: "#FFFBEB", color: "#92400E", fontSize: 11, cursor: "pointer", fontWeight: 500 },
     chatBtn:      { height: 26, padding: "0 10px", border: "0.5px solid #6EE7B7", borderRadius: 6, background: "#ECFDF5", color: "#065F46", fontSize: 11, cursor: "pointer", fontWeight: 500 },
     huyBtn:       { height: 26, padding: "0 10px", border: "0.5px solid #FCA5A5", borderRadius: 6, background: "#FEF2F2", color: "#DC2626", fontSize: 11, cursor: "pointer" },
     paging:       { display: "flex", justifyContent: "center", gap: 10, alignItems: "center", marginTop: 14 },

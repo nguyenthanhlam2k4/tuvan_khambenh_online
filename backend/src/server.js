@@ -12,6 +12,7 @@ import bacSiRouter     from "./routers/bacSi.Routers.js";
 import nguoiDungRouter from "./routers/nguoiDung.Routers.js";
 import lichKhamRouter  from "./routers/lichKham.Routers.js";
 import chatRouter      from "./routers/chat.Routers.js";
+import danhGiaRouter   from "./routers/danhGia.Routers.js";
 
 dotenv.config();
 
@@ -45,6 +46,7 @@ app.use("/api/bac-si",     bacSiRouter);
 app.use("/api/nguoi-dung", nguoiDungRouter);
 app.use("/api/lich-kham",  lichKhamRouter);
 app.use("/api/chat",       chatRouter);
+app.use("/api/danh-gia", danhGiaRouter);
 
 // ── Health check ──────────────────────────────────────────────────────────────
 app.get("/", (_req, res) => res.json({
