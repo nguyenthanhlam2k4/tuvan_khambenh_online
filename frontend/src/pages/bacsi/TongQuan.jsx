@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { layHoSoCaNhan } from "../../api/bacSiApi";
 import { layLichCuaBacSi, doiTrangThai } from "../../api/lichKhamApi";
 
@@ -25,7 +25,7 @@ export default function TongQuan() {
 
     const today = new Date().toISOString().slice(0, 10);
 
-    const taiDuLieu = async () => {
+    const taiDuLieu = useCallback(async () => {
         try {
             const [rHoSo, rLich] = await Promise.all([
                 layHoSoCaNhan(),
@@ -40,11 +40,13 @@ export default function TongQuan() {
                 sapToi:   ds.filter(l => l.ngay > today && l.trangThai !== "dahuy").length,
                 choduyet: ds.filter(l => l.trangThai === "choduyet").length,
             });
-        } catch { }
+        } catch (error) { 
+            console.error("Lỗi tải dữ liệu tổng quan:", error);
+        }
         finally { setLoad(false); }
-    };
+    }, [today]);
 
-    useEffect(() => { taiDuLieu(); }, []);
+    useEffect(() => { taiDuLieu(); }, [taiDuLieu]);
 
     const onDoiTrangThai = async (id, trangThaiMoi) => {
         try {

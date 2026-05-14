@@ -4,7 +4,7 @@ import { Server }     from "socket.io";
 import dotenv         from "dotenv";
 import cors           from "cors";
 import cookieParser   from "cookie-parser";
-import { connecDB }   from "./config/db.js";
+import { connectDB }   from "./config/db.js";
 import { khoiTaoSocket } from "./socket/socketHandler.js";
 
 import authRouter      from "./routers/auth.Routers.js";
@@ -19,21 +19,26 @@ dotenv.config();
 const app    = express();
 const server = createServer(app);       // HTTP server bọc Express
 const PORT   = process.env.PORT || 5001;
-const CLIENT = process.env.CLIENT_URL  || "http://localhost:5173";
+const CLIENTS = [
+    "http://localhost:5173",
+    "http://localhost:5174",
+    "http://localhost:5175",
+    process.env.CLIENT_URL
+].filter(Boolean);
 
 // ── Kết nối DB ────────────────────────────────────────────────────────────────
-connecDB();
+connectDB();
 
 // ── Socket.IO ─────────────────────────────────────────────────────────────────
 const io = new Server(server, {
-    cors: { origin: CLIENT, credentials: true },
+    cors: { origin: CLIENTS, credentials: true },
     // Tự động fallback polling nếu WebSocket không khả dụng
     transports: ["websocket", "polling"],
 });
 khoiTaoSocket(io);
 
 // ── Express Middleware ────────────────────────────────────────────────────────
-app.use(cors({ origin: CLIENT, credentials: true }));
+app.use(cors({ origin: CLIENTS, credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
 

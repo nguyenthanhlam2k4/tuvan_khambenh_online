@@ -33,7 +33,7 @@ const TIEU_DE = {
 export default function AdminDashboard() {
   const [active, setActive] = useState("bac-si");
 
-  const Trang = TRANG[active] || (() => <div>Không tìm thấy trang</div>);
+  const CurrentTrang = TRANG[active];
 //   console.log("active:", active);
 //   console.log("TRANG keys:", Object.keys(TRANG));
   return (
@@ -55,7 +55,7 @@ export default function AdminDashboard() {
         </div>
 
         <div style={s.content}>
-          <Trang />
+          {CurrentTrang ? <CurrentTrang /> : <div>Không tìm thấy trang</div>}
         </div>
       </div>
     </div>

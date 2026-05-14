@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { layDanhSachBacSi, duyetBacSi, xoaBacSi } from "../../api/bacSiApi";
 
 export default function QuanLyBacSi() {
@@ -8,7 +8,7 @@ export default function QuanLyBacSi() {
     const [phan, setPhan]         = useState({ tongSo: 0, tongTrang: 1 });
     const [chonBacSi, setChon]    = useState(null); // modal xem chi tiết
 
-    const tai = async (q = query) => {
+    const tai = useCallback(async (q = query) => {
         setLoading(true);
         try {
             const params = { ...q, gioiHan: 10 };
@@ -21,9 +21,9 @@ export default function QuanLyBacSi() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [query]);
 
-    useEffect(() => { tai(); }, []);
+    useEffect(() => { tai(); }, [tai]);
 
     const onFilter = (e) => {
         const next = { ...query, [e.target.name]: e.target.value, trang: 1 };

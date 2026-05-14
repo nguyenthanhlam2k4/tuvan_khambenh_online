@@ -31,15 +31,15 @@ export default function Sidebar({ active, setActive }) {
 
             {/* Menu */}
             <nav style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                {MENU.map(({ key, label, Icon }) => {
-                    const isActive = active === key;
+                {MENU.map((m) => {
+                    const isActive = active === m.key;
                     return (
-                        <button key={key} onClick={() => setActive(key)}
+                        <button key={m.key} onClick={() => setActive(m.key)}
                             style={{ ...s.item, ...(isActive ? s.itemActive : {}) }}>
                             <div style={{ ...s.iconWrap, ...(isActive ? s.iconActive : {}) }}>
-                                <Icon />
+                                <m.Icon />
                             </div>
-                            <span style={{ flex: 1, textAlign: "left" }}>{label}</span>
+                            <span style={{ flex: 1, textAlign: "left" }}>{m.label}</span>
                             {isActive && <div style={s.dot2} />}
                         </button>
                     );

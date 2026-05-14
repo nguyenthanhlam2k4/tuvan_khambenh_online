@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useRef, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { io } from "socket.io-client";
 import { useAuth } from "./AuthContext";
 
@@ -8,49 +8,60 @@ const SOCKET_URL = import.meta.env.VITE_API_URL?.replace("/api", "") || "http://
 
 export function SocketProvider({ children }) {
     const { daDangNhap } = useAuth();
-    const socketRef      = useRef(null);
+    const [socket, setSocket]           = useState(null);
     const [connected, setConnected]     = useState(false);
     const [onlineMap, setOnlineMap]     = useState({}); // { nguoiDungId: true }
 
+    const [prevDaDangNhap, setPrevDaDangNhap] = useState(daDangNhap);
+
+    if (daDangNhap !== prevDaDangNhap) {
+        setPrevDaDangNhap(daDangNhap);
+        if (!daDangNhap) {
+            setSocket(null);
+            setConnected(false);
+        }
+    }
+
     useEffect(() => {
         if (!daDangNhap) {
-            socketRef.current?.disconnect();
-            socketRef.current = null;
-            setConnected(false);
+            socket?.disconnect();
             return;
         }
 
         const token = sessionStorage.getItem("accessToken");
-        if (!token || socketRef.current?.connected) return;
+        // Nếu đã có socket và đang kết nối/đã kết nối thì không tạo mới
+        if (!token || socket) return;
 
-        const socket = io(SOCKET_URL, {
+        const s = io(SOCKET_URL, {
             auth: { token },
             transports: ["websocket", "polling"],
             reconnectionAttempts: 5,
             reconnectionDelay: 2000,
         });
 
-        socketRef.current = socket;
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setSocket(s);
 
-        socket.on("connect",    () => { setConnected(true);  console.log("🟢 Socket connected"); });
-        socket.on("disconnect", () => { setConnected(false); console.log("🔴 Socket disconnected"); });
-        socket.on("connect_error", (e) => console.warn("Socket error:", e.message));
+        s.on("connect",    () => { setConnected(true);  console.log("🟢 Socket connected"); });
+        s.on("disconnect", () => { setConnected(false); console.log("🔴 Socket disconnected"); });
+        s.on("connect_error", (e) => console.warn("Socket error:", e.message));
 
-        socket.on("nguoi-dung-online",  ({ nguoiDungId }) =>
+        s.on("nguoi-dung-online",  ({ nguoiDungId }) =>
             setOnlineMap(p => ({ ...p, [nguoiDungId]: true })));
-        socket.on("nguoi-dung-offline", ({ nguoiDungId }) =>
+        s.on("nguoi-dung-offline", ({ nguoiDungId }) =>
             setOnlineMap(p => ({ ...p, [nguoiDungId]: false })));
 
-        return () => { socket.disconnect(); };
-    }, [daDangNhap]);
+        return () => { s.disconnect(); };
+    }, [daDangNhap, socket]);
 
     const laOnline = (id) => !!onlineMap[id];
 
     return (
-        <SocketContext.Provider value={{ socket: socketRef.current, connected, laOnline }}>
+        <SocketContext.Provider value={{ socket, connected, laOnline }}>
             {children}
         </SocketContext.Provider>
     );
 }
 
-export const useSocketContext = () => useContext(SocketContext);
+// eslint-disable-next-line react-refresh/only-export-components
+export const useSocketContext = () => useContext(SocketContext);

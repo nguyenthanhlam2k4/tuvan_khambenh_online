@@ -1,6 +1,6 @@
 import mongoose from "mongoose"
 
-export const connecDB = async () => {
+export const connectDB = async () => {
     try {
         await mongoose.connect(process.env.MONGO_URI);
         console.log("Kết nối database thành công");

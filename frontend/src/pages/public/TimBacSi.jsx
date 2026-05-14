@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate, useSearchParams } from "react-router";
 import { layDanhSachBacSi } from "../../api/bacSiApi.js";
 
@@ -23,7 +23,7 @@ export default function TimBacSi() {
     const [tongTrang, setTT]  = useState(1);
     const [tongSo, setTS]     = useState(0);
 
-    const tai = async (tk, ck, t = 1) => {
+    const tai = useCallback(async (tk, ck, t = 1) => {
         setLoad(true);
         try {
             const params = { daXacMinh: true, trang: t, gioiHan: 9 };
@@ -40,12 +40,12 @@ export default function TimBacSi() {
         } finally {
             setLoad(false);
         }
-    };
+    }, []);
 
     // Load lần đầu — đọc từ URL
     useEffect(() => {
         tai(initQ, initCk, 1);
-    }, []);
+    }, [tai, initQ, initCk]);
 
     const onSearch = (e) => {
         e.preventDefault();

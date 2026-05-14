@@ -33,7 +33,6 @@ export default function ChiTietBacSi() {
     const [danhGias, setDanhGias] = useState({ danhSach: [], tongSo: 0, phanBo: [] });
     const [ngayChon, setNgay]     = useState(null);
     const [gioChon, setGio]       = useState(null);
-    const [loadLich, setLoadLich] = useState(false);
 
     const tuNgay = new Date().toISOString().slice(0, 10);
     const denNgay = (() => {
@@ -48,12 +47,12 @@ export default function ChiTietBacSi() {
             layDanhGiaBacSi(id)
         ]).then(([rBs, rLich, rDanhGia]) => {
             console.log(rDanhGia.data);
-    setBacSi(rBs.data.data);
-    setLich(rLich.data.data);
-    setDanhGias(rDanhGia.data.data);
-}).catch(() => navigate("/tim-bac-si"))
+            setBacSi(rBs.data.data);
+            setLich(rLich.data.data);
+            setDanhGias(rDanhGia.data.data);
+        }).catch(() => navigate("/tim-bac-si"))
           .finally(() => setLoad(false));
-    }, [id]);
+    }, [id, tuNgay, denNgay, navigate]);
     
     const ngayCoLich = lich.map(n => n.ngay);
     const lichNgayChon = lich.find(n => n.ngay === ngayChon);

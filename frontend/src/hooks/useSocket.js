@@ -7,7 +7,7 @@
  * socket sẽ là null nếu chưa đăng nhập hoặc đang kết nối.
  * Hook tự kết nối khi user đăng nhập và tự ngắt khi đăng xuất.
  */
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { io }      from "socket.io-client";
 import { useAuth } from "../context/AuthContext";
 
@@ -15,43 +15,53 @@ const SOCKET_URL = import.meta.env.VITE_API_URL?.replace("/api", "") || "http://
 
 export const useSocket = () => {
     const { daDangNhap } = useAuth();
-    const socketRef      = useRef(null);
+    const [socket, setSocket] = useState(null);
     const [connected, setConnected] = useState(false);
     const [online, setOnline]       = useState({}); // { nguoiDungId: true/false }
 
+    const [prevDaDangNhap, setPrevDaDangNhap] = useState(daDangNhap);
+
+    if (daDangNhap !== prevDaDangNhap) {
+        setPrevDaDangNhap(daDangNhap);
+        if (!daDangNhap) {
+            setSocket(null);
+            setConnected(false);
+        }
+    }
+
     useEffect(() => {
         if (!daDangNhap) {
-            socketRef.current?.disconnect();
-            socketRef.current = null;
-            setConnected(false);
+            socket?.disconnect();
             return;
         }
 
         const token = sessionStorage.getItem("accessToken");
-        if (!token) return;
+        // Nếu đã có socket thì không tạo mới
+        if (!token || socket) return;
 
         // Tạo kết nối mới
-        const socket = io(SOCKET_URL, {
+        const s = io(SOCKET_URL, {
             auth: { token },
             transports: ["websocket", "polling"],
             reconnectionAttempts: 5,
             reconnectionDelay: 2000,
         });
 
-        socketRef.current = socket;
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setSocket(s);
 
-        socket.on("connect",    () => setConnected(true));
-        socket.on("disconnect", () => setConnected(false));
+        s.on("connect",    () => setConnected(true));
+        s.on("disconnect", () => setConnected(false));
 
-        socket.on("nguoi-dung-online",  ({ nguoiDungId }) =>
+        s.on("nguoi-dung-online",  ({ nguoiDungId }) =>
             setOnline(p => ({ ...p, [nguoiDungId]: true })));
-        socket.on("nguoi-dung-offline", ({ nguoiDungId }) =>
+        s.on("nguoi-dung-offline", ({ nguoiDungId }) =>
             setOnline(p => ({ ...p, [nguoiDungId]: false })));
 
         return () => {
-            socket.disconnect();
+            s.disconnect();
         };
-    }, [daDangNhap]);
+    }, [daDangNhap, socket]);
 
-    return { socket: socketRef.current, connected, online };
+    return { socket, connected, online };
 };

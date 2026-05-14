@@ -1,4 +1,3 @@
-import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router";
 import SidebarBenhNhan from "../../components/benhnhan/SidebarBenhNhan";
 import TongQuan  from "./TongQuan";
@@ -25,20 +24,15 @@ const TIEU_DE = {
 export default function BenhNhanDashboard() {
     const [params] = useSearchParams();
     const navigate = useNavigate();
-    const tabParam = params.get("tab");
-    const [active, setActive] = useState(tabParam || "tong-quan");
+    const active = params.get("tab") || "tong-quan";
     const Trang = TRANG[active] || TongQuan;
 
     // Thông báo đặt lịch thành công
     const ok = params.get("ok");
-    useEffect(() => {
-        if (tabParam) setActive(tabParam);
-    }, [tabParam]);
 
     return (
         <div style={{ display: "flex", height: "100vh", overflow: "hidden" }}>
             <SidebarBenhNhan active={active} setActive={(k) => {
-                setActive(k);
                 navigate(`/benh-nhan?tab=${k}`, { replace: true });
             }} />
             <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>

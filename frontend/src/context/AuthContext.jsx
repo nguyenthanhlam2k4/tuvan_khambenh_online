@@ -40,7 +40,11 @@ export function AuthProvider({ children }) {
     };
 
     const dangXuat = async () => {
-        try { await dangXuatAPI(); } catch { }
+        try { 
+            await dangXuatAPI(); 
+        } catch (error) {
+            console.error("Lỗi đăng xuất:", error);
+        }
         sessionStorage.removeItem("accessToken");
         setNguoiDung(null);
         // Redirect về trang chủ sau khi đăng xuất
@@ -64,4 +68,5 @@ export function AuthProvider({ children }) {
     );
 }
 
-export const useAuth = () => useContext(AuthContext);
+// eslint-disable-next-line react-refresh/only-export-components
+export const useAuth = () => useContext(AuthContext);

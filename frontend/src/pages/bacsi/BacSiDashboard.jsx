@@ -1,4 +1,3 @@
-import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router";
 import SidebarBacSi  from "../../components/bacsi/SidebarBacSi";
 import TongQuan      from "./TongQuan";
@@ -27,14 +26,10 @@ const NO_PADDING = ["chat"];
 export default function BacSiDashboard() {
     const [params]  = useSearchParams();
     const navigate  = useNavigate();
-    const tabParam  = params.get("tab");
-    const [active, setActive] = useState(tabParam || "tong-quan");
+    const active = params.get("tab") || "tong-quan";
     const Trang = TRANG[active] || TongQuan;
 
-    useEffect(() => { if (tabParam) setActive(tabParam); }, [tabParam]);
-
     const goTab = (k) => {
-        setActive(k);
         navigate(`/bac-si?tab=${k}`, { replace: true });
     };
 

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import api from "../../api/axios";
 
 const VAI_TRO_STYLE = {
@@ -24,7 +24,7 @@ export default function QuanLyNguoiDung() {
     const [tongSo, setTS]     = useState(0);
     const [msg, setMsg]       = useState("");
 
-    const tai = async (t = 1, tk = tuKhoa, vt = vaiTro) => {
+    const tai = useCallback(async (t = 1, tk = tuKhoa, vt = vaiTro) => {
         setLoad(true);
         try {
             const params = { trang: t, gioiHan: 10 };
@@ -38,9 +38,9 @@ export default function QuanLyNguoiDung() {
             setTrang(t);
         } catch { setDs([]); }
         finally { setLoad(false); }
-    };
+    }, [tuKhoa, vaiTro]);
 
-    useEffect(() => { tai(); }, []);
+    useEffect(() => { tai(); }, [tai]);
 
     const onSearch = e => { e.preventDefault(); tai(1); };
 

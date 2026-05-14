@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { layLichCuaBacSi, doiTrangThai } from "../../api/lichKhamApi";
 import { layHoacTaoPhong } from "../../api/chatApi";
 import { useNavigate } from "react-router";
@@ -35,11 +35,15 @@ export default function LichHen() {
         const benhNhanNguoiDungId = l.benhNhanId?.nguoiDungId?._id || l.benhNhanId?.nguoiDungId;
         const bacSiNguoiDungId   = l.bacSiId?.nguoiDungId?._id    || l.bacSiId?.nguoiDungId;
         if (!benhNhanNguoiDungId) return;
-        try { await layHoacTaoPhong(benhNhanNguoiDungId, bacSiNguoiDungId, l._id); } catch {}
+        try { 
+            await layHoacTaoPhong(benhNhanNguoiDungId, bacSiNguoiDungId, l._id); 
+        } catch (error) {
+            console.error("Lỗi khi mở chat:", error);
+        }
         navigate("/bac-si?tab=chat");
     };
 
-    const tai = async (t = 1, f = filter) => {
+    const tai = useCallback(async (t = 1, f = filter) => {
         setLoad(true);
         try {
             const params = { trang: t, gioiHan: 10 };
@@ -51,9 +55,9 @@ export default function LichHen() {
             setTrang(t);
         } catch { setLich([]); }
         finally { setLoad(false); }
-    };
+    }, [filter]);
 
-    useEffect(() => { tai(); }, []);
+    useEffect(() => { tai(); }, [tai]);
 
     const onDoiTrangThai = async (id, trangThaiMoi) => {
         try {

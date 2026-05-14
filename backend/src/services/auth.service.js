@@ -31,7 +31,7 @@ export const dangKy = async ({ ten, email, matKhau, soDienThoai, vaiTro }) => {
 export const dangNhap = async ({ email, matKhau }) => {
   //
   const nguoiDung = await NguoiDung.findOne({ email }).select(
-    "+matkhau +refreshToken",
+    "+matKhau +refreshToken",
   );
   // NguoiDung.findOne({ email })
   // → Tìm 1 user trong database có email trùng với email nhập vào

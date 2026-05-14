@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { layLichCuaBenhNhan, huyLich } from "../../api/lichKhamApi";
 import { layHoacTaoPhong } from "../../api/chatApi";
 import { kiemTraDaDanhGia } from "../../api/danhGiaApi";
@@ -30,7 +30,7 @@ export default function LichKham() {
     const [trang, setTrang]     = useState(1);
     const [tongTrang, setTT]    = useState(1);
 
-    const tai = async (t = 1, f = filter) => {
+    const tai = useCallback(async (t = 1, f = filter) => {
         setLoad(true);
         try {
             const params = { trang: t, gioiHan: 10 };
@@ -41,9 +41,9 @@ export default function LichKham() {
             setTrang(t);
         } catch { setLich([]); }
         finally { setLoad(false); }
-    };
+    }, [filter]);
 
-    useEffect(() => { tai(); }, []);
+    useEffect(() => { tai(); }, [tai]);
 
     const onHuy = async (id) => {
         if (!confirm("Xác nhận hủy lịch khám này?")) return;

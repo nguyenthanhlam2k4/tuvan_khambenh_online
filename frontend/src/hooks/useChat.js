@@ -8,10 +8,17 @@ export const useChat = (socket, phongId, nguoiDungId) => {
     const typingTimer              = useRef(null);
     const emitTimer                = useRef(null);
 
+    const [prevPhongId, setPrevPhongId] = useState(phongId);
+
+    if (phongId !== prevPhongId) {
+        setPrevPhongId(phongId);
+        setLoading(!!phongId);
+    }
+
     // Load lịch sử khi vào phòng
     useEffect(() => {
         if (!phongId) return;
-        setLoading(true);
+        // setLoading(true); // handled during render
         layTinNhan(phongId, { trang: 1, gioiHan: 50 })
             .then(r => setTinNhans(r.data.data.danhSach))
             .catch(() => {})

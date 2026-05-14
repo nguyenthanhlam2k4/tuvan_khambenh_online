@@ -30,7 +30,7 @@ export default function DatLich() {
             .then(r => setBacSi(r.data.data))
             .catch(() => navigate("/tim-bac-si"))
             .finally(() => setLoad(false));
-    }, [id]);
+    }, [id, ngay, gio, navigate]);
 
     const onDat = async (e) => {
         e.preventDefault();

@@ -27,7 +27,7 @@ export default function DanhSachPhong({ phongChon, onChonPhong }) {
             .finally(() => setLoad(false));
     }, []);
 
-    useEffect(() => { tai(); }, []);
+    useEffect(() => { tai(); }, [tai]);
 
     useEffect(() => {
         if (!socket) return;

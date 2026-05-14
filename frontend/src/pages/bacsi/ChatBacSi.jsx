@@ -6,7 +6,7 @@ import ChatBox              from "../../components/chat/ChatBox";
 
 export default function ChatBacSi() {
     const { socket, connected } = useSocketContext();
-    const { nguoiDung }         = useAuth();
+    useAuth();
     const [phongChon, setPhong] = useState(null); // phong object
     const [doiPhuong, setDoi]   = useState(null);
 

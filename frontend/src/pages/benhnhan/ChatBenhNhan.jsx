@@ -9,15 +9,20 @@ import ChatBox                  from "../../components/chat/ChatBox";
 export default function ChatBenhNhan({ bacSiIdKhoiTao, lichKhamId }) {
     const navigate              = useNavigate();
     const { socket, connected } = useSocketContext();
-    const { nguoiDung }         = useAuth();
+    useAuth();
     const [phongChon, setPhong] = useState(null);
     const [doiPhuong, setDoi]   = useState(null);
-    const [creating, setCreate] = useState(false);
+    const [creating, setCreate] = useState(!!bacSiIdKhoiTao);
+    const [prevInitId, setPrevInitId] = useState(bacSiIdKhoiTao);
+
+    if (bacSiIdKhoiTao !== prevInitId) {
+        setPrevInitId(bacSiIdKhoiTao);
+        setCreate(true);
+    }
 
     // Nếu được truyền bacSiIdKhoiTao → tự tạo/lấy phòng ngay
     useEffect(() => {
         if (!bacSiIdKhoiTao) return;
-        setCreate(true);
         layHoacTaoPhong(bacSiIdKhoiTao, lichKhamId)
             .then(r => {
                 const phong = r.data.data;
@@ -26,7 +31,7 @@ export default function ChatBenhNhan({ bacSiIdKhoiTao, lichKhamId }) {
             })
             .catch(() => {})
             .finally(() => setCreate(false));
-    }, [bacSiIdKhoiTao]);
+    }, [bacSiIdKhoiTao, lichKhamId]);
 
     const onChonPhong = (phong) => {
         setPhong(phong);

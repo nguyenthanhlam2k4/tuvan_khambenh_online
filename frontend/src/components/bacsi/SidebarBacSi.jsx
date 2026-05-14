@@ -29,17 +29,17 @@ export default function SidebarBacSi({ active, setActive, chatBadge = 0 }) {
                 </div>
             </div>
             <nav style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                {MENU.map(({ key, label, Icon, badge }) => {
-                    const on = active === key;
+                {MENU.map((m) => {
+                    const on = active === m.key;
                     return (
-                        <button key={key} onClick={() => setActive(key)}
+                        <button key={m.key} onClick={() => setActive(m.key)}
                             style={{ ...s.item, ...(on ? s.on : {}) }}>
-                            <div style={{ ...s.iconWrap, ...(on ? s.iconOn : {}) }}><Icon /></div>
-                            <span style={{ flex: 1, textAlign: "left" }}>{label}</span>
-                            {badge && chatBadge > 0 && (
+                            <div style={{ ...s.iconWrap, ...(on ? s.iconOn : {}) }}><m.Icon /></div>
+                            <span style={{ flex: 1, textAlign: "left" }}>{m.label}</span>
+                            {m.badge && chatBadge > 0 && (
                                 <div style={s.badge}>{chatBadge > 9 ? "9+" : chatBadge}</div>
                             )}
-                            {on && !badge && <div style={s.dot2} />}
+                            {on && !m.badge && <div style={s.dot2} />}
                         </button>
                     );
                 })}

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { layTatCaLich, doiTrangThai } from "../../api/lichKhamApi";
 
 const TRANG_THAI = {
@@ -10,7 +10,9 @@ const TRANG_THAI = {
 
 function fmtNgay(str) {
     if (!str) return "";
-    const [y, m, d] = str.split("-");
+    const parts = str.split("-");
+    const m = parts[1];
+    const d = parts[2];
     const thu = ["CN","T2","T3","T4","T5","T6","T7"][new Date(str).getDay()];
     return `${thu} ${d}/${m}`;
 }
@@ -26,7 +28,7 @@ export default function AdminLichKham() {
     const [msg, setMsg]       = useState({ text: "", ok: true });
     const [chon, setChon]     = useState(null); // modal
 
-    const tai = async (t = 1, f = filter, n = ngay) => {
+    const tai = useCallback(async (t = 1, f = filter, n = ngay) => {
         setLoad(true);
         try {
             const params = { trang: t, gioiHan: 12 };
@@ -39,9 +41,9 @@ export default function AdminLichKham() {
             setTrang(t);
         } catch { setLich([]); }
         finally { setLoad(false); }
-    };
+    }, [filter, ngay]);
 
-    useEffect(() => { tai(); }, []);
+    useEffect(() => { tai(); }, [tai]);
 
     const onDoiTT = async (id, tt) => {
         try {
